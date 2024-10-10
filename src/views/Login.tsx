@@ -5,16 +5,17 @@ import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useLoginUserMutation } from '../apis/registerapi';
 import { useNavigate } from 'react-router-dom';
+import { UseSelector,useDispatch, useSelector } from 'react-redux';
+import { setIsLogin } from '../redux/authSlice';
+import { DialerSipSharp } from '@mui/icons-material';
 
 const Login = () => {
-    const [loginUser,{data,error,isSuccess}] = useLoginUserMutation()
+    const [loginUser] = useLoginUserMutation()
     // console.log("isSuccess",isSuccess,"ERROR",error)
- 
+ const isLogin = useSelector((state:any)=>state.auth.isLogin)
+ const diapatch = useDispatch()
    
     const navigate = useNavigate()
-
-    
-  
     const initialValues:ILoginValues={
         email:"",
         password:""
@@ -31,8 +32,12 @@ const Login = () => {
        window.alert("login Sucessful");
        let {data}=response;
        console.log("token",data?.token)
-      window.localStorage.setItem('access_token',data?.token)
+       window.localStorage.setItem('access_token',data?.token)
+       diapatch(setIsLogin(true))
+
        navigate('/mycvs')
+      //  window.location.reload()
+
      }
      
     }

@@ -3,6 +3,7 @@ export interface IUserDetails{
     email:string,
     mobile:number,
     password:string,
+    confirmpassword?:string
     profileImage?:string | null,
   
 }
@@ -12,8 +13,11 @@ export interface IToken{
 
 
 
-
-
+export interface IResponse{
+  status:number,
+  message:string,
+  data?:any,  }
+ 
 export interface ILoginResponse  {
     data: IUserDetails & IToken,
     message: string;

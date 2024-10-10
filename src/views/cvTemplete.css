@@ -4,11 +4,12 @@
     background: rgb(223, 221, 218);
     margin: 10px;
     padding:5px;
-    border: 2px solid var(--clr-dark);
+    border: 1px solid var(--clr-dark);
     border-radius: 10px;
     justify-content:space-evenly;
     align-items: center;
-    
+    height: 100vh;
+    flex-wrap: wrap;
     
   }
 
@@ -16,21 +17,21 @@
     font-family: var(--font-family);
     color: var(--clr-dark);
     max-width: 700px;
-    margin: 0 auto;
-    height: 80vh;
-    background-color: var(--clr-secondary);
+    margin: 5px;
+    height: auto;
+    background-color: rgb(245, 242, 236);
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    border:1px solid  var(--clr-brown)
   }
   
   /* Header */
   .header {
     text-align: center;
-    background-color: var(--clr-dark);
+    background-color: var(--clr-brown);
     padding: 20px;
     color: white;
   }
@@ -39,6 +40,7 @@
     margin: 0;
     font-size: 36px;
     color: rgb(223, 221, 218);
+    
 }
   
   .header p {
@@ -53,15 +55,16 @@
   
   /* Sections */
   .section {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
   
   .section h2 {
     font-size: 24px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     color: var(--clr-dark);
     border-bottom: 2px solid var(--clr-primary);
     padding-bottom: 5px;
+    text-align: left;
   }
   
   .section ul {
@@ -71,6 +74,7 @@
   
   .section ul li {
     margin-bottom: 10px;
+    
   }
   
   /* Skills */

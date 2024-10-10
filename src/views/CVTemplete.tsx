@@ -2,14 +2,16 @@ import React from 'react';
 import { useGetCVQuery } from '../apis/cvapi';
 import { useSelector } from 'react-redux';
 import './cvTemplete.css';
+import { IEducation, IExperience, IProject, ISkill, ISocialProfile } from '../types/cvDetails';
 
 const CVTemplete = () => {
-  const cvId = useSelector((state) => state.cv.cvId); // Get cvId from Redux store
+  const cvId = useSelector((state:any) => state.cv.cvId); // Get cvId from Redux store
+  console.log(cvId)
   const { data: cv } = useGetCVQuery(cvId, { skip: !cvId,pollingInterval: 5000 }); // Skip query if no cvId
 
   // Return empty div if no data
   if (!cv) {
-    return <div>No CV found</div>;
+    return <div>Submit basic details for preview</div>;
   }
 
   const {
@@ -19,7 +21,7 @@ const CVTemplete = () => {
     projects,
     skills,
     socialProfiles,
-  } = cv;
+  } = cv.data;
 
   return (
     <div className="cvTemplate">
@@ -27,31 +29,12 @@ const CVTemplete = () => {
       <div className="header">
         <h1>{basicDetails.name}</h1>
         <p>
-          {basicDetails.email} | {basicDetails.phone} | {basicDetails.address}
+          {basicDetails.email} | {basicDetails.phone} | {basicDetails.address} 
         </p>
       </div>
 
       {/* Main Body */}
       <div className="main">
-        {/* Basic Details */}
-        <div className="section">
-          <h2>Basic Details</h2>
-          <ul>
-            <li>
-              <strong>Name:</strong> {basicDetails.name}
-            </li>
-            <li>
-              <strong>Address:</strong> {basicDetails.address}
-            </li>
-            <li>
-              <strong>Email:</strong> {basicDetails.email}
-            </li>
-            <li>
-              <strong>Phone:</strong> {basicDetails.phone}
-            </li>
-          </ul>
-        </div>
-
         {/* Summary */}
         <div className="section">
           <h2>Summary</h2>
@@ -62,7 +45,7 @@ const CVTemplete = () => {
         <div className="section">
           <h2>Experience</h2>
           <ul>
-            {experience?.map((exp, index) => (
+            {experience?.map((exp:IExperience, index:number) => (
               <li key={index}>
                 <strong>{exp.position}</strong> at {exp.organization} (
                 {exp.startDate} - {exp.endDate})
@@ -75,7 +58,7 @@ const CVTemplete = () => {
         <div className="section">
           <h2>Projects</h2>
           <ul>
-            {projects?.map((project, index) => (
+            {projects?.map((project:IProject, index:number) => (
               <li key={index}>
                 <strong>{project.title}</strong>
                 <p>{project.description}</p>
@@ -88,7 +71,7 @@ const CVTemplete = () => {
         <div className="section">
           <h2>Education</h2>
           <ul>
-            {education?.map((edu, index) => (
+            {education?.map((edu:IEducation, index:number) => (
               <li key={index}>
                 <strong>{edu.degree}</strong> - {edu.institution} (
                 {edu.percentage})
@@ -101,7 +84,7 @@ const CVTemplete = () => {
         <div className="section">
           <h2>Skills</h2>
           <ul className="skills">
-            {skills?.map((skill, index) => (
+            {skills?.map((skill:ISkill, index:number) => (
               <li key={index}>
                 {skill.skillName} - {skill.proficiency}
               </li>
@@ -113,7 +96,7 @@ const CVTemplete = () => {
         <div className="section">
           <h2>Social Profiles</h2>
           <ul>
-            {socialProfiles?.map((profile, index) => (
+            {socialProfiles?.map((profile:ISocialProfile, index:number) => (
               <li key={index}>
                 <a href={profile.link} target="_blank" rel="noopener noreferrer">
                   {profile.platform}

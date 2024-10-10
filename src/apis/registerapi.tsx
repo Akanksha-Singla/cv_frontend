@@ -1,11 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { IUserDetails ,ILoginValues,ILoginResponse} from '../types/userDetails'; // Assuming IUserDetails contains the structure of the user data
+import { IUserDetails ,ILoginValues,ILoginResponse,IResponse} from '../types/userDetails'; // Assuming IUserDetails contains the structure of the user data
 
 export const registrationApi = createApi({
   reducerPath: 'registrationApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:4001/api/' }),
   endpoints: (builder) => ({
-    createUser: builder.mutation<IUserDetails, Partial<IUserDetails>>({
+    createUser: builder.mutation<IResponse, Partial<IUserDetails>>({
       query: (userData) => ({
         url: 'user/register',
         method: 'POST',

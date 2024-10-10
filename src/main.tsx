@@ -18,7 +18,7 @@ import { useGetCVQuery } from "./apis/cvapi.tsx";
 import Editor from "./views/Editor.tsx";
 import CVCard from "./views/CVCard.tsx";
 import CVTemplete from "./views/CVTemplete.tsx";
-
+import ProtectedRoute from "./ProtectedRoute.tsx";
 
 const childRoutes = [
   {
@@ -26,15 +26,28 @@ const childRoutes = [
     loader:()=>redirect('mycvs') 
 
   },
-  { path: "mycvs", element: <AllCV /> },
+  { path: "mycvs", element: 
+   <ProtectedRoute>
+    <AllCV />
+  </ProtectedRoute>},
 
   {
     path: "editCV/:_id",
-    element: <CVForm/>,
+    element: 
+   <ProtectedRoute>
+      <CVForm/>
+   </ProtectedRoute>
+    
+    
+    
   },
   {
     path: "addCV",
-    element: <CVForm/>,
+   element: 
+   <ProtectedRoute>
+       <CVForm/>
+   </ProtectedRoute>
+
   },
   {
     path: "login",
@@ -59,7 +72,7 @@ const childRoutes = [
 const rootRoutes = [
   {
     path: "/",
-    element: <App />,
+    element: <App/>,
     children: childRoutes,
   },
 ];

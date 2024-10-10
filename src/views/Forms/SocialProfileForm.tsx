@@ -1,84 +1,125 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useForm, SubmitHandler, useFieldArray  ,useWatch} from "react-hook-form";
 import { ISocialProfile } from "../../types/cvDetails";
-import { useForm, SubmitHandler } from "react-hook-form";
 import "../../styles/form.css";
-import { useCreateCVMutation,useUpdateCVMutation ,useGetCVQuery} from "../../apis/cvapi";
-import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useCreateCVMutation, useUpdateCVMutation, useGetCVQuery } from "../../apis/cvapi";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { IconButton } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CVPreview from "../CVPreview";
+import { IAllPreviewProps } from "./EducationForm";
 
-// platform: string
-// link: string
+export interface ISocialProfileForm {
+  socialProfiles: ISocialProfile[];
+}
 
-const SocialProfileForm = () => {
+const SocialProfileForm:React.FC<IAllPreviewProps> = ({onUpdate}) => {
   const [createCV] = useCreateCVMutation();
-  const [updateCV] = useUpdateCVMutation()
-   const cvId=useSelector((state)=>state.cv.cvId)
-   const {_id} = useParams();
- // Fetch CV data by ID (if editing an existing entry)
- const { data: existingCVData } = _id ? useGetCVQuery(_id) : { data: null };
+  const [updateCV] = useUpdateCVMutation();
+  
+  const cvId = useSelector((state: any) => state.cv.cvId);
+  const { _id } = useParams();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset
-  } = useForm<ISocialProfile>({
-    mode:'onTouched'
+  const { register, handleSubmit, formState: { errors }, control, reset } = useForm<ISocialProfileForm>({
+    mode: 'onTouched',
+    defaultValues: {
+      socialProfiles: [{ platform: '', link: '' }]
+    }
   });
 
+  const { fields, append, remove } = useFieldArray({
+    name: 'socialProfiles',
+    control
+  });
+
+  // Fetch CV data by ID (if editing an existing entry)
+  const { data: existingCVData } = _id ? useGetCVQuery(_id) : { data: null };
+  
+  
+  const watchedSocialProfiles = useWatch({
+    control,
+    name: 'socialProfiles'
+  });
+
+  useEffect(()=>{
+    onUpdate(watchedSocialProfiles)
+  },[watchedSocialProfiles])
+
   useEffect(() => {
-    if (existingCVData && existingCVData.socialProfiles.length > 0) {
-      reset(existingCVData.socialProfiles[0]); 
+    if (existingCVData?.data && existingCVData?.data?.socialProfiles?.length > 0) {
+      reset({ socialProfiles: existingCVData?.data?.socialProfiles });
     }
   }, [existingCVData, reset]);
 
-  const onSubmit: SubmitHandler<ISocialProfile> = (data) => {
+  const onSubmit: SubmitHandler<ISocialProfileForm> = async(data) => {
+    const formData = {
+      _id: _id || cvId,
+      socialProfiles: data.socialProfiles
+    };
 
-    if(_id){
-      const formData ={
-        _id:_id,
-        socialProfiles
-        :[data]
-      }
-      updateCV(formData)
+    if (_id) {
+     const res= await updateCV(formData).unwrap();
+     console.log("res",res)
+    } else {
+      const res = await updateCV(formData).unwrap();
+      console.log("res",res)
     }
-    else{ const formData ={
-      _id:cvId,
-      socialProfiles
-      :[data]
-    }
-    updateCV(formData)}
-   
   };
+ 
+
   return (
     <div className="formContainer">
       <form onSubmit={handleSubmit(onSubmit)} className="form">
-        <label>Platform</label>
-        <input
-          {...register('platform', { required: 'Platform is required' })}
-          type="text"
-          placeholder="Enter platform"
-        />
-        {errors.platform && <span>{errors.platform.message}</span>}
+        {fields.map((field, index) => (
+          <section key={field.id}>
+            <label>Platform</label>
+            <input
+              {...register(`socialProfiles.${index}.platform`, { required: 'Platform is required' })}
+              type="text"
+              placeholder="Enter platform"
+              className="formInput"
+            />
+            {errors.socialProfiles?.[index]?.platform && <span>{errors.socialProfiles[index]?.platform?.message}</span>}
 
-        <label>Link</label>
-        <input
-          {...register('link', {
-            required: 'Link is required',
-            pattern: {
-              value: /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)([\/?].*)?$/,
-              message: 'Enter a valid URL',
-            },
-          })}
-          type="text"
-          placeholder="Enter link (URL)"
-        />
-        {errors.link && <span>{errors.link.message}</span>}
+            <label>Link</label>
+            <input
+              {...register(`socialProfiles.${index}.link`, {
+                required: 'Link is required',
+                pattern: {
+                  value: /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)([\/?].*)?$/,
+                  message: 'Enter a valid URL'
+                }
+              })}
+              type="text"
+              placeholder="Enter link (URL)"
+              className="formInput"
+            />
+            {errors.socialProfiles?.[index]?.link && <span>{errors.socialProfiles[index]?.link?.message}</span>}
 
-        <input type="submit" className='btn-success'/>
-      </form> 
-      
+            <IconButton onClick={() => remove(index)} className="btn-danger">
+              <DeleteIcon />
+            </IconButton>
+          </section>
+        ))}
+
+        <IconButton onClick={() => append({ platform: '', link: '' })} className="btn-success">
+          <AddIcon />
+        </IconButton>
+
+        <input type="submit" className="btn-success" />
+      </form>
+          {/* Live Preview Section */}
+          {/* <div className="previewContainer">
+        <h3>Live Preview</h3>
+        {watchedSocialProfiles && watchedSocialProfiles.map((profile, index) => (
+          <div key={index} className="previewItem">
+            <p><strong>Platform:</strong> {profile.platform || "N/A"}</p>
+            <p><strong>Link:</strong> {profile.link || "N/A"}</p>
+          </div>
+        ))}
+      </div> */}
     </div>
   );
 };

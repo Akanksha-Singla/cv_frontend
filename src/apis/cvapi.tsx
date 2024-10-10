@@ -1,84 +1,76 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { IUserDetails,ILoginValues } from '../types/userDetails';
+import { IUserDetails, ILoginValues } from '../types/userDetails';
 import { ICVDetails } from "../types/cvDetails"
+import { IResponse } from '../types/userDetails';
 
-interface IResponse{
-  status:string,
-  data:{
-    cvId:string
+interface ICVIDResponse {
+  status: string,
+  data: {
+    cvId: string
   }
 }
-const token = window.localStorage.getItem('access_token')
 
+// Fetch the token dynamically every time a request is made
 export const cvApi = createApi({
   reducerPath: 'cvApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:4001/api/' }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'http://localhost:4001/api/',
+    prepareHeaders: (headers) => {
+      const token = window.localStorage.getItem('access_token');
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
     createCV: builder.mutation<IResponse, Partial<ICVDetails>>({
       query: (cvDetails) => ({
         url: 'cv/addBasicDetails',
         method: 'POST',
-        body: cvDetails,  
-        headers: {
-          Authorization: `Bearer ${token}`,
-          },
+        body: cvDetails,
       }),
       transformResponse: (response: IResponse): IResponse => {
-        // Returning the full response
         return response;
       },
     }),
-  getAllCV: builder.query<ICVDetails[],void>({
-        query: () => ({
-          url: 'cv/getBasicDetails',
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            },
-         // Passing the user data as the body for the POST request
-        }),
+    getAllCV: builder.query<IResponse, void>({
+      query: () => ({
+        url: 'cv/getBasicDetails',
+        method: 'GET',
       }),
-      getCV: builder.query<ICVDetails, string>({
-        query: (id) => ({
-          url:`cv/getCv/${id}`,
-          method:'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            },
     }),
-          }),
-      updateCV: builder.mutation<ICVDetails, Partial<ICVDetails>>({
-       
-        query(data) {
-          const { _id, ...body } = data
-          console.log("update api in fe",_id,data)
-          return {
-            url: `cv/update/${_id}`,
-            method: 'PUT',
-            body,
-            headers: {
-              Authorization: `Bearer ${token}`,
-              },
-          }
-        },
-        // Invalidates all queries that subscribe to this Post `id` only.
-        // In this case, `getPost` will be re-run. `getPosts` *might*  rerun, if this id was under its results.
-        // invalidatesTags: (result, error, { _id }) => [{ type: 'CV', _id }],
+    getCV: builder.query<IResponse, string>({
+      query: (id) => ({
+        url: `cv/getCv/${id}`,
+        method: 'GET',
       }),
-      deleteCV: builder.mutation<{ success: boolean; id: string }, string>({
-        query(id) {
-          return {
-            url: `cv/delete/${id}`,
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              },
-          }
-        },
-         }),
+    }),
+    updateCV: builder.mutation<IResponse, Partial<ICVDetails>>({
+      query(data) {
+        const { _id, ...body } = data;
+        return {
+          url: `cv/update/${_id}`,
+          method: 'PUT',
+          body,
+        };
+      },
+    }),
+    deleteCV: builder.mutation<{ success: boolean; id: string }, string>({
+      query(id) {
+        return {
+          url: `cv/delete/${id}`,
+          method: 'DELETE',
+        };
+      },
+    }),
   }),
-
- 
 });
 
-export const { useCreateCVMutation,useGetAllCVQuery,useGetCVQuery,useDeleteCVMutation,useUpdateCVMutation} = cvApi;
+export const { 
+  useCreateCVMutation, 
+  useLazyGetAllCVQuery, 
+  useGetCVQuery, 
+  useDeleteCVMutation, 
+  useUpdateCVMutation 
+} = cvApi;

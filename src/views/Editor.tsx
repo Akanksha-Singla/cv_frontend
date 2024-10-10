@@ -1,20 +1,15 @@
 import React,{lazy,Suspense} from "react";
 import CVForm from "./Forms/CVForm";
+import CVTemplete from "./CVTemplete";
 
-const CVTemplete = lazy(() => import("./CVTemplete"));
+
 
 const Editor = () => {
-  return (
-    <div className="editor">
-      <div>
-        
-        <CVForm />
-      </div>
 
+  return (
+    <div className="editor" >
       <div>
-      <Suspense fallback={<div>Loading CV Preview...</div>}>
-          <CVTemplete />
-        </Suspense>
+        <CVForm/>
       </div>
     </div>
   );

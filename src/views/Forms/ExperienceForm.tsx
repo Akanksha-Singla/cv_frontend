@@ -1,141 +1,167 @@
-import React from 'react'
-import { IExperience} from '../../types/cvDetails'
-import { useForm, SubmitHandler } from "react-hook-form";
-import '../../styles/form.css'
-import { useCreateCVMutation ,useUpdateCVMutation,useGetCVQuery} from '../../apis/cvapi';
-import { useSelector} from 'react-redux';
+import React, { useEffect } from 'react';
+import { IExperience } from '../../types/cvDetails';
+import { useForm, SubmitHandler, useFieldArray,useWatch } from 'react-hook-form';
+import '../../styles/form.css';
+import { useCreateCVMutation, useUpdateCVMutation, useGetCVQuery } from '../../apis/cvapi';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { IconButton } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { IAllPreviewProps } from './EducationForm';
 
-
-
-
-// organization: string
-// location: string
-// position: string
-// ctc: number
-// startDate: date
-// endDate?: date
-// technologies: string[]
-const ExperienceForm = () => {
-    const [createCV] = useCreateCVMutation()
-    const [updateCV] = useUpdateCVMutation()
-
-    const {_id} = useParams();
-    // Fetch CV data by ID (if editing an existing entry)
-    const { data: existingCVData } = _id ? useGetCVQuery(_id) : { data: null };
-     
-    const cvId = useSelector((state)=>state.cv.cvId)
-    const { register, handleSubmit ,formState: { errors },reset } = useForm<IExperience>({
-      mode:'onTouched'
-    })
-
-    useEffect(() => {
-      if (existingCVData && existingCVData.experience.length > 0) {
-        reset(existingCVData.experience[0]); 
-      }
-    }, [existingCVData, reset]);
-
-    const onSubmit: SubmitHandler<IExperience> = (data) =>{
-      console.log("in experience",data,cvId)
-      if(_id){
-        const formData={
-          _id:_id,
-          experience:[data]
-        }
-        updateCV(formData)
-      }
-      else
-      { const formData={
-        _id:cvId,
-        experience:[data]
-      }
-      updateCV(formData)}
-      }
-     
-      
-    
-  return (
-    <div className='formContainer'>
-    <form onSubmit={handleSubmit(onSubmit)} className="form">
-      <label>Organization</label>
-      <input
-        {...register('organization', { required: 'Organization is required' })}
-        type="text"
-        placeholder="Enter your organization"
-      />
-      {errors.organization && <span>{errors.organization.message}</span>}
-
-      <label>Location</label>
-      <input
-        {...register('location', { required: 'Location is required' })}
-        type="text"
-        placeholder="Enter the location"
-      />
-      {errors.location && <span>{errors.location.message}</span>}
-
-      <label>Position</label>
-      <input
-        {...register('position', {
-          required: 'Position is required',
-          maxLength: {
-            value: 10,
-            message: 'Position cannot exceed 10 characters',
-          },
-        })}
-        type="text"
-        placeholder="Enter your position"
-      />
-      {errors.position && <span>{errors.position.message}</span>}
-
-      <label>CTC</label>
-      <input
-        {...register('ctc', {
-          required: 'CTC is required',
-          valueAsNumber: true, // Ensure it is treated as a number
-          min: {
-            value: 0,
-            message: 'CTC must be greater than 0',
-          },
-        })}
-        type="number"
-        placeholder="Enter your CTC"
-      />
-      {errors.ctc && <span>{errors.ctc.message}</span>}
-
-      <label>Start Date</label>
-      <input
-        {...register('startDate', {
-          required: 'Start Date is required',
-          valueAsDate: true, // Ensure it's treated as a date
-        })}
-        type="date"
-        placeholder="Enter the start date"
-      />
-      {errors.startDate && <span>{errors.startDate.message}</span>}
-
-      <label>End Date</label>
-      <input
-        {...register('endDate', {
-          valueAsDate: true, // Optional date, ensure it’s a valid date
-        })}
-        type="date"
-        placeholder="Enter the end date"
-      />
-      {errors.endDate && <span>{errors.endDate.message}</span>}
-
-      <label>Technologies</label>
-      <input
-        {...register('technologies', { required: 'Technologies are required' })}
-        type="text"
-        placeholder="Enter technologies (comma separated)"
-      />
-      {errors.technologies && <span>{errors.technologies.message}</span>}
-
-      <input type="submit" className='btn-success'/>
-    </form>
-    </div>
-  )
+export interface IExperienceForm {
+  experience: IExperience[];
 }
 
-export default ExperienceForm
+const ExperienceForm:React.FC<IAllPreviewProps> = ({onUpdate}) => {
+  const [createCV] = useCreateCVMutation();
+  const [updateCV] = useUpdateCVMutation();
+
+  const cvId = useSelector((state: any) => state.cv.cvId);
+  
+  const { register, handleSubmit, formState: { errors }, reset, control } = useForm<IExperienceForm>({
+    mode: 'onTouched',
+    defaultValues: {
+      experience: [{ organization: '', location: '', position: '', ctc: 0, startDate: new Date(), endDate: new Date(), technologies: '' }]
+    }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    name: 'experience',
+    control
+  });
+
+  const { _id } = useParams();
+  const { data: existingCVData} = _id ? useGetCVQuery(_id) : { data: null };
+  const watchedExperience = useWatch({
+    control,
+    name: 'experience'
+  });
+
+  useEffect(()=>{
+    onUpdate(watchedExperience)
+  },[watchedExperience])
+
+  useEffect(() => {
+    if (existingCVData?.data && existingCVData?.data?.experience?.length > 0) {
+      reset({ experience: existingCVData?.data?.experience });
+    }
+  }, [existingCVData, reset]);
+
+  const onSubmit: SubmitHandler<IExperienceForm> = async(data) => {
+    console.log(data)
+    
+    if (_id) {
+      const formData = {
+        _id: _id ,
+        experience: data.experience // Handle dynamic array of experience
+      };
+  
+      const res= await updateCV(formData).unwrap();
+      console.log("res",res)
+    } else {
+      const formData = {
+        _id: cvId,
+        experience: data.experience // Handle dynamic array of experience
+      };
+      const res= await updateCV(formData).unwrap();
+     console.log("res",res)
+    }
+  };
+
+  return (
+    <div className="formContainer">
+      <form onSubmit={handleSubmit(onSubmit)} className="form">
+        {fields.map((field, index) => (
+          <section key={field.id}>
+            <label>Organization</label>
+            <input
+              {...register(`experience.${index}.organization`, { required: 'Organization is required' })}
+              type="text"
+              placeholder="Enter your organization"
+              className="formInput"
+            />
+            {errors.experience?.[index]?.organization && <span>{errors.experience[index].organization?.message}</span>}
+
+            <label>Location</label>
+            <input
+              {...register(`experience.${index}.location`, { required: 'Location is required' })}
+              type="text"
+              placeholder="Enter the location"
+              className="formInput"
+            />
+            {errors.experience?.[index]?.location && <span>{errors.experience[index].location?.message}</span>}
+
+            <label>Position</label>
+            <input
+              {...register(`experience.${index}.position`, {
+                required: 'Position is required',
+                maxLength: { value: 10, message: 'Position cannot exceed 10 characters' }
+              })}
+              type="text"
+              placeholder="Enter your position"
+              className="formInput"
+            />
+            {errors.experience?.[index]?.position && <span>{errors.experience[index].position?.message}</span>}
+
+            <label>CTC</label>
+            <input
+              {...register(`experience.${index}.ctc`, {
+                required: 'CTC is required',
+                valueAsNumber: true,
+                min: { value: 0, message: 'CTC must be greater than 0' }
+              })}
+              type="number"
+              placeholder="Enter your CTC"
+              className="formInput"
+            />
+            {errors.experience?.[index]?.ctc && <span>{errors.experience[index].ctc?.message}</span>}
+
+            <label>Start Date</label>
+            <input
+              {...register(`experience.${index}.startDate`, { required: 'Start Date is required', valueAsDate: true })}
+              type="date"
+              className="formInput"
+            />
+            {errors.experience?.[index]?.startDate && <span>{errors.experience[index].startDate?.message}</span>}
+
+            <label>End Date</label>
+            <input
+              {...register(`experience.${index}.endDate`, { valueAsDate: true })}
+              type="date"
+              className="formInput"
+            />
+            {errors.experience?.[index]?.endDate && <span>{errors.experience[index].endDate?.message}</span>}
+
+            <label>Technologies</label>
+            <input
+              {...register(`experience.${index}.technologies`, { required: 'Technologies are required' })}
+              type="text"
+              placeholder="Enter technologies (comma-separated)"
+              className="formInput"
+            />
+            
+           
+            {errors.experience?.[index]?.technologies && <span>{errors.experience[index].technologies?.message}</span>}
+
+            <IconButton onClick={() => remove(index)} className="btn-danger">
+              <DeleteIcon />
+            </IconButton>
+          </section>
+        ))}
+
+        <IconButton
+          onClick={() => append({ organization: '', location: '', position: '', ctc: 0, startDate:new Date(), endDate:new Date(), technologies: ''})}
+          className="btn-success"
+        >
+          <AddIcon/>
+        </IconButton>
+
+        <input type="submit" className="btn-success" />
+      </form>
+    </div>
+  );
+};
+
+export default ExperienceForm;

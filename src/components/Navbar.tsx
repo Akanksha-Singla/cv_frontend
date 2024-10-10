@@ -13,6 +13,12 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
+import {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { UseDispatch } from 'react-redux';
+import { setIsLogin } from '../redux/authSlice';
+import { ILoginValues } from '../types/userDetails';
 
 
 const pages = [{name:'Dashboard',route:"mycvs"}, {name:'Create CV',route:"addCV"}];
@@ -20,11 +26,31 @@ const settings = [{name:"Login" ,route:"login"},
     {name:"Registration",route:"register"},
 
 ];
+interface INavProps{
+  user:ILoginValues
+}
 
-const Navbar = () => {
+const Navbar = ({user}:INavProps) => {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  
+    const [isLogout,setIsLogut] = useState(false)
+
+    const dispatch = useDispatch()
+
+    const isLogin = useSelector((state:any)=>state.auth.isLogin)
+    console.log("in nav",isLogin)
+
+
+    const navigate = useNavigate()
+    const logout =()=>{
+
+      const token:string|null= window.localStorage.getItem('access_token');
+      token && localStorage.removeItem('access_token')
+      window.alert("Logout Successfully")
+      dispatch(setIsLogin(false))
+      navigate('/login')
+      }
+
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
       setAnchorElNav(event.currentTarget);
     };
@@ -60,7 +86,7 @@ const Navbar = () => {
             textDecoration: 'none',
           }}
         >
-          LOGO
+         CV Builder { user && user.email}
         </Typography>
 
         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -154,7 +180,7 @@ const Navbar = () => {
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
           >
-           {settings.map((setting) => (
+           {!isLogin && settings.map((setting) => (
           <MenuItem key={setting.name} onClick={handleCloseUserMenu}>
            
             <Link to={setting.route} style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -164,6 +190,7 @@ const Navbar = () => {
             </Link>
           </MenuItem>
         ))}
+          {isLogin && <button onClick={logout} style={{textAlign: 'center' }}>Logout</button>}
           </Menu>
         </Box>
       </Toolbar>

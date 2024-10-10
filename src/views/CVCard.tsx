@@ -11,6 +11,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
+
 type Iprops = {
   cv: ICVDetails;
   deleteCVById: (id?: string) => void;
@@ -59,21 +60,20 @@ const CVCard = (props: Iprops) => {
             component={Link}
             to={`/editCV/${cv._id}`}
             startIcon={<EditIcon />}
-            color="primary"
+            // color="primary"
             variant="contained"
-            style={{ position: "relative", float: "left", margin: "9px" }}
-          >
-            Edit
+            style={{ position: "relative", float: "left", margin: "9px",background:"var(--clr-brown)",textAlign:"center"}}>
+          
           </Button>
+        
           <Button
-            onClick={() => deleteCVById(cv._id)}
+            onClick={() => deleteCVById(cv?._id)}
             startIcon={<DeleteIcon />}
-            color="secondary"
+            // color="secondary"
             variant="contained"
-            style={{ position: "relative", float: "right", margin: "9px" }}
+            style={{ position: "relative", float: "right", margin: "9px",background:"var(--clr-brown)",textAlign:"center"}}
           >
-            Delete
-          </Button>
+           </Button>
          
 
         </div>
@@ -88,24 +88,6 @@ const CVCard = (props: Iprops) => {
       {/* Main Body */}
       <div className="main">
         {/* Basic Details */}
-        <div className="section">
-          <h2>Basic Details</h2>
-          <ul>
-            <li>
-              <strong>Name:</strong> {basicDetails.name}
-            </li>
-            <li>
-              <strong>Address:</strong> {basicDetails.address}
-            </li>
-            <li>
-              <strong>Email:</strong> {basicDetails.email}
-            </li>
-            <li>
-              <strong>Phone:</strong> {basicDetails.phone}
-            </li>
-          </ul>
-        </div>
-
         {/* Summary */}
         <div className="section">
           <h2>Summary</h2>
@@ -155,11 +137,13 @@ const CVCard = (props: Iprops) => {
         <div className="section">
           <h2>Skills</h2>
           <ul className="skills">
-            {skills?.map((skill, index) => (
-              <li key={index}>
-                {skill.skillName} - {skill.proficiency}
-              </li>
-            ))}
+            {Array.isArray(skills)  && (
+              skills.map((skill, index) => (
+                <li key={index}>
+                  {skill.skillName} - {skill.proficiency}
+                </li>
+              ))
+            ) }
           </ul>
         </div>
 
@@ -181,11 +165,11 @@ const CVCard = (props: Iprops) => {
           </ul>
         </div>
       </div>
-      <button onClick={downloadPdf}>
+      <button onClick={downloadPdf} className="btn-success">
               {
                 loader?(<span>Downloading</span>):(<span>Download</span>)
               }
-            </button>
+      </button>
     </div>
   );
 };
