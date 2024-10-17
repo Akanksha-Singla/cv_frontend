@@ -9,7 +9,6 @@ interface ICVIDResponse {
     cvId: string
   }
 }
-
 // Fetch the token dynamically every time a request is made
 export const cvApi = createApi({
   reducerPath: 'cvApi',
@@ -40,11 +39,27 @@ export const cvApi = createApi({
         method: 'GET',
       }),
     }),
+
+    
+    
     getCV: builder.query<IResponse, string>({
       query: (id) => ({
         url: `cv/getCv/${id}`,
         method: 'GET',
       }),
+      // Lifecycle event to log query information
+    
+      transformResponse: (response: IResponse) => {
+        console.log(response)
+        return response; // Return the response to be used in your component
+      },
+    }),
+    
+    getUser: builder.query<IResponse, void>({
+      query: () => ({
+        url: `cv/getUserDetails`,
+        method: 'GET',
+      }),   
     }),
     updateCV: builder.mutation<IResponse, Partial<ICVDetails>>({
       query(data) {
@@ -56,6 +71,25 @@ export const cvApi = createApi({
         };
       },
     }),
+    uploadCVImage: builder.mutation<IResponse, Partial<ICVDetails>>({
+      query(data) {
+        
+      const{_id,cvImage} = data
+
+      const formData = new FormData();
+      formData.append("cvImage", cvImage);
+      console.log("formdata entry")
+      formData.forEach((value,key)=>console.log(value,key))
+
+        console.log("inside image fe")
+        return {
+          url: `cv/uploadImage/${_id}`,
+          method: 'PUT',
+          body:formData,
+        };
+      },
+    }),
+
     deleteCV: builder.mutation<{ success: boolean; id: string }, string>({
       query(id) {
         return {
@@ -69,8 +103,10 @@ export const cvApi = createApi({
 
 export const { 
   useCreateCVMutation, 
+  useLazyGetUserQuery,
   useLazyGetAllCVQuery, 
   useGetCVQuery, 
   useDeleteCVMutation, 
-  useUpdateCVMutation 
+  useUpdateCVMutation,
+  useUploadCVImageMutation
 } = cvApi;

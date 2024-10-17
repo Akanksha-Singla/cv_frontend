@@ -17,6 +17,7 @@
     "@mui/material": "^6.1.1",
     "@mui/styled-engine-sc": "^6.1.1",
     "@reduxjs/toolkit": "^2.2.7",
+    "axios": "^1.7.7",
     "formik": "^2.4.6",
     "formik-mui": "^5.0.0-alpha.1",
     "html2canvas": "^1.4.1",

@@ -7,14 +7,16 @@ import { setCvId } from '../../redux/cvSlice';
 import { useDispatch, UseDispatch } from 'react-redux';
 import { useLocation ,useParams} from 'react-router-dom';
 import { useEffect } from 'react';
+import Alert from '@mui/material/Alert';
+
 
 export interface IBasicDetailForm {
   basicDetails: IBasicDetails;
 }
 
 interface IBasicDetailProps{
-  formData:any,
-  onUpdate:any
+  formData:IBasicDetails,
+  onUpdate: (data:any) => void;
 }
 const BasicForm:React.FC<IBasicDetailProps> = ({formData,onUpdate}) => {
 const[createCV,{data}] = useCreateCVMutation();
@@ -25,6 +27,7 @@ const {_id} = useParams();
 
  // Fetch CV data by ID (if editing an existing entry)
  const { data: existingCVData } = _id ? useGetCVQuery(_id) : { data: null };
+
 
  
   // console.log("basic existingCVData?.data ",existingCVData?.data)
@@ -44,13 +47,15 @@ const watchedBasicDetails = useWatch({
 
 useEffect(() => {
   if (existingCVData?.data) {
-    reset(existingCVData?.data?.basicDetails); // Populate form with existing data
+    console.log("🚀 ~ existingCVData:", existingCVData?.data.basicDetails)
+
+    reset({basicDetails: existingCVData?.data.basicDetails}); // Populate form with existing data
   }
 }, [existingCVData, reset]);
 
-// useEffect(()=>{
-//   onUpdate(watchedBasicDetails)
-// },[watchedBasicDetails])
+useEffect(()=>{
+  onUpdate(watchedBasicDetails)
+},[watchedBasicDetails])
   
    
   
@@ -131,7 +136,11 @@ useEffect(() => {
 
       <label>Address</label>
       <input
-        {...register('basicDetails.address', { required: 'Address is required' })}
+        {...register('basicDetails.address', { required: 'Address is required'
+          ,minLength: {
+          value: 3,
+          message: 'Address must contain alleast 3 characters',
+        }, })}
         type="text"
         placeholder="Enter your address"
        
@@ -140,7 +149,10 @@ useEffect(() => {
 
       <label>City</label>
       <input
-        {...register('basicDetails.city', { required: 'City is required' })}
+        {...register('basicDetails.city', { required: 'City is required'  ,minLength: {
+          value: 3,
+          message: 'City must contain alleast 3 characters',
+        },})}
         type="text"
         placeholder="Enter your city"
         

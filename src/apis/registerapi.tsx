@@ -3,7 +3,9 @@ import { IUserDetails ,ILoginValues,ILoginResponse,IResponse} from '../types/use
 
 export const registrationApi = createApi({
   reducerPath: 'registrationApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:4001/api/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:4001/api/'
+   
+   }),
   endpoints: (builder) => ({
     createUser: builder.mutation<IResponse, Partial<IUserDetails>>({
       query: (userData) => ({
@@ -21,6 +23,8 @@ export const registrationApi = createApi({
         }),
       }),
   }),
+
+  
 });
 
 export const { useCreateUserMutation,useLoginUserMutation } = registrationApi;

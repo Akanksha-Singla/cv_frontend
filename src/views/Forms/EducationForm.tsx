@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useForm, SubmitHandler, useFieldArray,useWatch } from 'react-hook-form';
-import { IEducation } from '../../types/cvDetails';
+import { IEducation, IExperience, IProject, ISkill, ISocialProfile } from '../../types/cvDetails';
 import '../../styles/form.css';
 import { useCreateCVMutation, useUpdateCVMutation, useGetCVQuery } from '../../apis/cvapi';
 import { useSelector } from 'react-redux';
@@ -8,12 +8,13 @@ import { useParams } from 'react-router-dom';
 import { IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Alert from '@mui/material/Alert';
 
 export interface IEducationForm {
   education: IEducation[];
 }
 export interface IAllPreviewProps{
-  onUpdate:any
+  onUpdate:(data:any) => void;
 
 }
 const EducationForm:React.FC<IAllPreviewProps> = ({onUpdate}) => {

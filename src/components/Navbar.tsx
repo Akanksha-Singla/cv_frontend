@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { UseDispatch } from 'react-redux';
 import { setIsLogin } from '../redux/authSlice';
 import { ILoginValues } from '../types/userDetails';
+import { useLazyGetUserQuery } from '../apis/cvapi';
 
 
 const pages = [{name:'Dashboard',route:"mycvs"}, {name:'Create CV',route:"addCV"}];
@@ -26,20 +27,23 @@ const settings = [{name:"Login" ,route:"login"},
     {name:"Registration",route:"register"},
 
 ];
-interface INavProps{
-  user:ILoginValues
-}
 
-const Navbar = ({user}:INavProps) => {
+
+
+const Navbar = () => {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-    const [isLogout,setIsLogut] = useState(false)
+  
 
+    
     const dispatch = useDispatch()
 
     const isLogin = useSelector((state:any)=>state.auth.isLogin)
-    console.log("in nav",isLogin)
+ 
+    const[trigger,{data}] = useLazyGetUserQuery()
+    console.log("user Data",data)
 
+    React.useEffect(()=>{trigger()},[data])
 
     const navigate = useNavigate()
     const logout =()=>{
@@ -86,10 +90,11 @@ const Navbar = ({user}:INavProps) => {
             textDecoration: 'none',
           }}
         >
-         CV Builder { user && user.email}
+         CV Builder
         </Typography>
 
         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+        
           <IconButton
             size="large"
             aria-label="account of current user"
@@ -116,7 +121,7 @@ const Navbar = ({user}:INavProps) => {
             onClose={handleCloseNavMenu}
             sx={{ display: { xs: 'block', md: 'none' } }}
           >
-            {pages.map((page) => (
+            {isLogin &&  pages.map((page) => (
               <MenuItem key={page.name} onClick={handleCloseNavMenu}>
                 <Link to={page.route}>
                 <Typography sx={{ textAlign: 'center' }}>{page.name}</Typography>
@@ -126,7 +131,9 @@ const Navbar = ({user}:INavProps) => {
             ))}
           </Menu>
         </Box>
+       
         <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+    
         <Typography
           variant="h5"
           noWrap
@@ -146,7 +153,7 @@ const Navbar = ({user}:INavProps) => {
          Neo CV builder
         </Typography>
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-          {pages.map((page) => (
+          {isLogin &&  pages.map((page) => (
             <Button
               key={page.name}
               onClick={handleCloseNavMenu}
@@ -159,9 +166,11 @@ const Navbar = ({user}:INavProps) => {
           ))}
         </Box>
         <Box sx={{ flexGrow: 0 }}>
+            {data?.username}
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+
+              <Avatar alt="Remy Sharp" src={data?.profileImage} />
             </IconButton>
           </Tooltip>
           <Menu
@@ -180,6 +189,7 @@ const Navbar = ({user}:INavProps) => {
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
           >
+            
            {!isLogin && settings.map((setting) => (
           <MenuItem key={setting.name} onClick={handleCloseUserMenu}>
            

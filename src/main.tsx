@@ -13,10 +13,7 @@ import AllCV from "./views/AllCV.tsx";
 import CVForm from "./views/Forms/CVForm.tsx";
 import Login from "./views/Login.tsx";
 import Registration from "./views/Registration.tsx";
-import Dashboard from "./views/Dashboard.tsx";
-import { useGetCVQuery } from "./apis/cvapi.tsx";
-import Editor from "./views/Editor.tsx";
-import CVCard from "./views/CVCard.tsx";
+
 import CVTemplete from "./views/CVTemplete.tsx";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 
@@ -57,9 +54,7 @@ const childRoutes = [
     path: "register",
     element: <Registration />,
   },
- {
-  path:"editor",
-  element:<Editor/>},
+
 
   {
     path:"getCV",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import {
   IBasicDetails,
@@ -20,6 +20,8 @@ import EducationForm from "./EducationForm";
 import ExperienceForm from "./ExperienceForm";
 import SkillsForm from "./SkillsForm";
 import ProjectForm from "./ProjectForm";
+import ImageUpload from "./ImageUpload";
+
 import {
   useCreateCVMutation,
   useUpdateCVMutation,
@@ -34,21 +36,27 @@ import { useParams } from "react-router-dom";
 const CVForm = () => {
   const [createCV] = useCreateCVMutation();
   const { _id } = useParams();
+
+  console.log("cvForm id", _id);
   // Fetch CV data by ID (if editing an existing entry)
-  const { data: existingCVData } = _id ? useGetCVQuery(_id) : { data: null };
-  console.log("cvForm", existingCVData?.data.basicDetails);
+
+
+  const{data: existingCVData} = _id ? useGetCVQuery(_id) : { data: null }
+  
+ 
+  console.log("cvForm data basic details:", existingCVData?.data.basicDetails);
 
   const initialBasicDetail = _id
     ? existingCVData?.data.basicDetails
     : {
-        name: "Akanksha",
-        email: "singla.akanksha92@gmail.com",
+        name: "",
+        email: "",
         phone: 9999999999,
-        address: "Prince Ice Cream",
-        city: "JInd",
-        state: "Haryana",
+        address: "",
+        city: "",
+        state: "",
         pincode: 126102,
-        intro: "Software Developer",
+        intro: "",
       };
   const initialEducation = _id
     ? existingCVData?.data.education
@@ -91,10 +99,10 @@ const CVForm = () => {
   const initialSocialProfile = _id
     ? existingCVData?.data.socialProfiles
     : [{ platform: "Linked in", link: "" }];
+
   const [formData, setFormData] = useState({
     basicDetails: initialBasicDetail,
     education: initialEducation,
-
     experience: initialExperience,
     skills: initialSkills,
     projects: initialProjects,
@@ -115,6 +123,7 @@ const CVForm = () => {
     "Skills",
     "Projects",
     "Social Profile",
+    "Image Upload"
   ];
   const basicDetailMethod = useForm<IBasicDetails>({
     defaultValues: {
@@ -160,6 +169,11 @@ const CVForm = () => {
   const socialProfilesMethod = useForm<ISocialProfile>({
     defaultValues: { platform: "", link: "" },
   });
+
+  const cvImageMethod =useForm<any>({
+    defaultValues:null
+
+  })
 
   const formMethods = {
     basicDetail: basicDetailMethod,
@@ -213,7 +227,73 @@ const CVForm = () => {
   const handleReset = () => {
     setActiveStep(0);
   };
+  useEffect(()=>{
+    const initialBasicDetail = _id
+    ? existingCVData?.data.basicDetails
+    : {
+        name: "",
+        email: "",
+        phone: 9999999999,
+        address: "",
+        city: "",
+        state: "",
+        pincode: 126102,
+        intro: "",
+      };
+  const initialEducation = _id
+    ? existingCVData?.data.education
+    : [
+        {
+          degree: "B.tech",
+          institution: "JIet",
+          percentage: 80,
+        },
+      ];
 
+  const initialExperience = _id
+    ? existingCVData?.data.experience
+    : [
+        {
+          organization: "Neosoft",
+          location: "Mumbai",
+          position: "developer",
+          ctc: 3,
+          startDate: new Date(),
+          endDate: new Date(),
+          technologies: "Javascript",
+        },
+      ];
+
+  const initialSkills = _id
+    ? existingCVData?.data.skills
+    : [{ skillName: "React", proficiency: 56 }];
+  const initialProjects = _id
+    ? existingCVData?.data.projects
+    : [
+        {
+          title: "CV_Builder",
+          teamSize: 3,
+          duration: "2 weeks",
+          technologies: "React",
+          description: "Mern Stack",
+        },
+      ];
+  const initialSocialProfile = _id
+    ? existingCVData?.data.socialProfiles
+    : [{ platform: "Linked in", link: "" }];
+
+
+    setFormData({
+      basicDetails: initialBasicDetail,
+      education: initialEducation,
+      experience: initialExperience,
+      skills: initialSkills,
+      projects: initialProjects,
+      socialProfile: initialSocialProfile,
+    })
+
+    console.log("🚀 ~ CVForm ~ xistingCVData?.data:", existingCVData?.data)
+  },[existingCVData?.data,setFormData])
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
@@ -291,6 +371,15 @@ const CVForm = () => {
                 />
               </FormProvider>
             )}
+           {activeStep == 6 && (
+
+            <FormProvider{...cvImageMethod}>
+                <ImageUpload/>
+            </FormProvider>
+           
+            
+            )}
+
 
             {activeStep === steps.length ? (
               <React.Fragment>
@@ -332,11 +421,11 @@ const CVForm = () => {
           </Box>
         </Grid>
 
-        {
-          <Grid size={{ xs: 12, md: 4, lg: 6 }}>
-            <CVPreview formData={formData} />
+        
+         <Grid size={{ xs: 12, md: 4, lg: 6 }}>
+         <CVPreview formData={formData} />
           </Grid>
-        }
+        
       </Grid>
     </Box>
   );

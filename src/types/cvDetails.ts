@@ -8,10 +8,10 @@ export interface ICVDetails {
     projects: IProject[]
     skills: ISkill[] 
     socialProfiles: ISocialProfile[]
+    cvImage?:string | Blob,
   }
   
   export interface IBasicDetails {
-    
     name: string
     email: string
     phone: number

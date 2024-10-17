@@ -1,8 +1,12 @@
 // features/cvSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
+
+const isAuthenticated = !!localStorage.getItem("access_token");
+console.log("isAuthenticated",isAuthenticated)
+
 const initialState = {
-  isLogin:true,  // Initial state, can be null or some default value
+  isLogin: isAuthenticated,  // Initial state, can be null or some default value
 };
 
 const authSlice = createSlice({
